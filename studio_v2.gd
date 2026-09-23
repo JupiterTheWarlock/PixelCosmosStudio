@@ -464,7 +464,8 @@ func _orbit_camera(domain: String) -> void:
 func _view_input(domain: String, event: InputEvent) -> void:
 	var d: Dictionary = pages[domain]
 	if event is InputEventMouseMotion and event.button_mask&MOUSE_BUTTON_MASK_LEFT:
-		d.yaw -= event.relative.x*.008
+		# A sky camera turns in place; dragging right must move the sky right.
+		d.yaw += event.relative.x*.008*(1.0 if domain=="sky" else -1.0)
 		d.pitch = clampf(d.pitch+event.relative.y*.008,-1.45,1.45)
 		_orbit_camera(domain)
 	if event is InputEventMouseButton and event.pressed and domain=="planet":
