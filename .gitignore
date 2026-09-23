@@ -1,0 +1,7 @@
+.godot/
+exports/
+.tools/
+*.log
+*.zip
+__pycache__/
+*.import

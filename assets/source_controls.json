@@ -1,0 +1,95 @@
+{
+  "planet_commit": "8ec6ee305527946ae415f4e7875587c974add273",
+  "space_commit": "4d86a586cbdb913ebc21a7cfbd7f1cf8589d0865",
+  "planet_types": [
+    {
+      "source": "Planets/Rivers/Rivers.tscn",
+      "defaults": {
+        "octaves": 6,
+        "rotation": 0.2,
+        "cloud_cover": 0.47,
+        "cloud_octaves": 2,
+        "cloud_stretch": 2.0,
+        "cloud_curve": 1.3,
+        "noise_scale": 4.6,
+        "cloud_scale": 7.315
+      }
+    },
+    {
+      "source": "Planets/DryTerran/DryTerran.tscn",
+      "defaults": {
+        "octaves": 3,
+        "rotation": 0.0,
+        "noise_scale": 8.0
+      }
+    },
+    {
+      "source": "Planets/LandMasses/LandMasses.tscn",
+      "defaults": {
+        "octaves": 6,
+        "rotation": 0.2,
+        "cloud_cover": 0.415,
+        "cloud_octaves": 2,
+        "cloud_stretch": 2.0,
+        "cloud_curve": 1.3,
+        "noise_scale": 4.292,
+        "cloud_scale": 7.745
+      }
+    },
+    {
+      "source": "Planets/NoAtmosphere/NoAtmosphere.tscn",
+      "defaults": {
+        "octaves": 4,
+        "rotation": 0.0,
+        "noise_scale": 8.0
+      }
+    },
+    {
+      "source": "Planets/GasPlanet/GasPlanet.tscn",
+      "defaults": {
+        "octaves": 5,
+        "rotation": 0.0,
+        "cloud_cover": 0.538,
+        "cloud_octaves": 5,
+        "cloud_stretch": 1.0,
+        "cloud_curve": 1.3,
+        "noise_scale": 9.0,
+        "cloud_scale": 9.0
+      }
+    },
+    {
+      "source": "Planets/GasPlanetLayers/GasPlanetLayers.tscn",
+      "defaults": {
+        "octaves": 3,
+        "rotation": 0.0,
+        "cloud_cover": 0.61,
+        "cloud_octaves": 3,
+        "cloud_stretch": 2.204,
+        "cloud_curve": 1.376,
+        "noise_scale": 10.107,
+        "cloud_scale": 10.107
+      }
+    },
+    {
+      "source": "Planets/IceWorld/IceWorld.tscn",
+      "defaults": {
+        "octaves": 3,
+        "rotation": 0.0,
+        "cloud_cover": 0.546,
+        "cloud_octaves": 4,
+        "cloud_stretch": 2.5,
+        "cloud_curve": 1.3,
+        "noise_scale": 10.0,
+        "cloud_scale": 4.0
+      }
+    },
+    {
+      "source": "Planets/LavaWorld/LavaWorld.tscn",
+      "defaults": {
+        "octaves": 3,
+        "rotation": 0.0,
+        "noise_scale": 10.0
+      }
+    }
+  ]
+}

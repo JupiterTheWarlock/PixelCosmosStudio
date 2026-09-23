@@ -1,0 +1,5 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><link rel="icon" href="data:,"><title>Pixel Cosmos · three.js 接入示例</title>
+<style>body{margin:0;background:#121925;color:#dbe9f4;font:15px system-ui}header{padding:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}canvas{display:block;margin:auto;image-rendering:pixelated;max-width:100%;width:840px;height:630px}button,input{accent-color:#8bc5d3}#status{padding:12px 24px}</style>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
+<header><b>Pixel Cosmos / three.js</b><label>灯光方位 <input id="light" type="range" min="-180" max="180" value="-35"></label><label><input id="toon" type="checkbox">像素分段光照</label><label><input id="animate" type="checkbox">动画</label><label>打开 GLB <input id="file" type="file" accept=".glb"></label></header>
+<div id="status">加载模型…</div><script type="module" src="./viewer.js"></script></html>
