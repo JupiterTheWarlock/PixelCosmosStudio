@@ -60,24 +60,35 @@ static func sample_direction(images: Array[Image], point: Vector3) -> Color:
 	var uv: Vector2 = (q+Vector2.ONE)*.5
 	return image.get_pixel(clampi(int(uv.x*image.get_width()),0,image.get_width()-1),clampi(int(uv.y*image.get_height()),0,image.get_height()-1))
 
-static func voxel(images: Array[Image], grid: int) -> MeshInstance3D:
+# One density unit is one cube across the diameter, including odd densities.
+# Only emit the two ends of each occupied sphere column, never scan its volume.
+static func voxel(images: Array[Image], density: int) -> MeshInstance3D:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var half: float = 1.0/float(grid)
+	var half: float = 1.0/float(density)
 	var directions: Array[Vector3] = [Vector3.RIGHT,Vector3.LEFT,Vector3.UP,Vector3.DOWN,Vector3.BACK,Vector3.FORWARD]
-	for z in range(-grid,grid):
-		for y in range(-grid,grid):
-			for x in range(-grid,grid):
-				var center: Vector3 = (Vector3(x,y,z)+Vector3.ONE*.5)*2.0*half
-				if center.length_squared()>1.0: continue
-				for face in 6:
-					if (center+directions[face]*2.0*half).length_squared()<=1.0: continue
-					var color: Color = sample_direction(images,center)
-					if color.a<.5: continue
-					for corner in [Vector2(0,0),Vector2(1,0),Vector2(0,1),Vector2(1,0),Vector2(1,1),Vector2(0,1)]:
-						st.set_color(color)
-						st.set_normal(directions[face])
-						st.add_vertex(center+cube_point(face,corner)*half)
+	for face in 6:
+		var axis: int = face/2
+		for u in density:
+			for v in density:
+				var a: float = -1.0+(u+.5)*2.0*half
+				var b: float = -1.0+(v+.5)*2.0*half
+				var remainder: float = 1.0-a*a-b*b
+				if remainder<0.0: continue
+				var last: int = floori((sqrt(remainder)+1.0)/(2.0*half)-.5)
+				if last < density/2: continue
+				var cell: int = last if face%2==0 else density-1-last
+				var center := Vector3.ZERO
+				center[axis] = -1.0+(cell+.5)*2.0*half
+				center[(axis+1)%3] = a
+				center[(axis+2)%3] = b
+				var color: Color = sample_direction(images,center)
+				if color.a<.5: continue
+				for corner in [Vector2(0,0),Vector2(1,0),Vector2(0,1),Vector2(1,0),Vector2(1,1),Vector2(0,1)]:
+					st.set_color(color)
+					st.set_normal(directions[face])
+					st.add_vertex(center+cube_point(face,corner)*half)
+
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
 	mat.roughness = 1.0

@@ -44,6 +44,8 @@ static func planet_material(p: Dictionary, clouds: bool, toon: bool = false, lev
 		mat.set_shader_parameter("dither_strength",dither_amount)
 	configure(mat,"planet",p)
 	mat.set_shader_parameter("clouds_only",clouds)
+	mat.set_shader_parameter("voxel_surface",p.voxel and not clouds)
+	mat.set_shader_parameter("voxel_density",float(p.pixels))
 	mat.set_shader_parameter("material_roughness",p.roughness)
 	mat.set_shader_parameter("material_metallic",p.metallic)
 	return mat
@@ -55,7 +57,7 @@ static func sky_material(p: Dictionary) -> ShaderMaterial:
 	return mat
 
 static func contract(domain: String, p: Dictionary) -> Dictionary:
-	return {"algorithm":VERSION,"domain":domain,"parameters":p.duplicate(true),"uniform_bindings":{"seed":"float(parameters.seed) * 0.001 + 1.0","kind":0 if domain=="planet" else 1,"planet_type":p.get("type",2),"colors":"sRGB hex to 0..1 RGB; no automatic input linearization","clouds_only":"true for CloudShell, false for surface/sky","noise_time":"time_seconds modulo noise_duration"},"duration_seconds":p.noise_duration,"frames":p.noise_frames,"fps":float(p.noise_frames)/p.noise_duration,"sample_time":"frame_index * duration_seconds / frames; endpoint excluded","noise_time_unit":"seconds","space":"normalized object-local direction; sky world direction","lighting_baked":false,"source":"noise_core.gdshaderinc","source_sha256":FileAccess.get_sha256("res://noise_core.gdshaderinc")}
+	return {"algorithm":VERSION,"domain":domain,"parameters":p.duplicate(true),"uniform_bindings":{"seed":"float(parameters.seed) * 0.001 + 1.0","kind":0 if domain=="planet" else 1,"planet_type":p.get("type",2),"colors":"sRGB hex to 0..1 RGB; no automatic input linearization","clouds_only":"true for CloudShell, false for surface/sky","noise_time":"time_seconds modulo noise_duration"},"duration_seconds":p.noise_duration,"frames":p.noise_frames,"fps":float(p.noise_frames)/p.noise_duration,"sample_time":"frame_index * duration_seconds / frames; endpoint excluded","noise_time_unit":"seconds","space":"normalized object-local direction; sky world direction","voxel_sampling":"For voxel surfaces, sample once at cube center: cell_size=2/pixels; center=(floor((local_position-local_face_normal*cell_size*0.001+1)/cell_size)+0.5)*cell_size-1. All faces of a cube share this direction and color; lighting remains per-face. Cloud shell uses continuous direction.","lighting_baked":false,"source":"noise_core.gdshaderinc","source_sha256":FileAccess.get_sha256("res://noise_core.gdshaderinc")}
 
 static func context(domain: String, p: Dictionary) -> String:
 	return "请在当前游戏项目中复现以下 Pixel Cosmos 动态效果，按项目已有引擎与渲染管线接入，不安装插件。\n"+\

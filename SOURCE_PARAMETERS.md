@@ -45,3 +45,9 @@ The current spatial noise is 3D value noise; original tools generally evaluate 2
 ## Voxel cloud clearance
 
 Cloud shell radius uses the actual farthest surface vertex plus the configured height. It also accounts for the shell triangles lying slightly inside their vertex radius. This keeps cloud triangles outside voxel corners, including coarse voxels. test_cloud_bounds.gd verifies the minimum height at voxel diameters 12, 32 and 64.
+
+## Shared pixel / voxel density
+
+The `pixels` value now controls cube count across the planet diameter in voxel mode, including odd numbers. The separate `voxel_size` field is retired; old configurations can still be loaded, but its value is ignored in favor of `pixels`. Mesh generation emits only exposed faces of occupied cubes. Every face of one cube has the same base color. Dynamic materials sample noise at the cube center instead of painting detail across a face. Real-time lighting still shades faces according to their normals.
+
+The present mesh builder supports voxel density through 256. Larger requested values report an explicit error rather than silently lowering density; sphere pixel density retains its original range. Preview, export, and implementation context share the same density and per-cell sampling rule. Run `--script res://test_voxel.gd` with a real graphics renderer to check odd/even geometry and uniform per-cell animated colors.

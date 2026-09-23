@@ -50,6 +50,8 @@ func bake(face: int, dimensions: Vector2i, cloud_layer: bool = false) -> Image:
 	return image
 
 func generate(domain: String, parameters: Dictionary) -> Dictionary:
+	if domain=="planet" and parameters.voxel and int(parameters.pixels)>preload("res://parameters.gd").MAX_VOXEL_DENSITY:
+		return {"error":"体素密度超过 256，请降低“像素 / 体素密度”后生成。"}
 	var p: Dictionary = parameters.duplicate(true)
 	configure(domain,p)
 	var images: Array[Image] = []
@@ -68,7 +70,7 @@ func generate(domain: String, parameters: Dictionary) -> Dictionary:
 		var surface_extent: float = p.radius
 		root.name = "PixelCosmosPlanet"
 		if p.surface_enabled:
-			var surface: MeshInstance3D = Geometry.voxel(images,int(p.voxel_size)/2) if p.voxel else Geometry.sphere(images,1.0,not p.water_enabled)
+			var surface: MeshInstance3D = Geometry.voxel(images,int(p.pixels)) if p.voxel else Geometry.sphere(images,1.0,not p.water_enabled)
 			surface.name = "Surface"
 			surface.scale = Vector3.ONE*p.radius
 			root.add_child(surface)

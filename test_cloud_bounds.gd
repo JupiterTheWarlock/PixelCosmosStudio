@@ -4,8 +4,8 @@ func _initialize() -> void:
 	var image := Image.create(2,2,false,Image.FORMAT_RGBA8)
 	image.fill(Color.WHITE)
 	var images: Array[Image] = [image,image,image,image,image,image]
-	for diameter in [12,32,64]:
-		var surface := Geometry.voxel(images,diameter/2)
+	for diameter in [12,13,32,64,100]:
+		var surface := Geometry.voxel(images,diameter)
 		var extent := Geometry.outer_radius(surface.mesh)
 		var radius := (extent+.005)/Geometry.sphere_inradius()
 		var cloud := Geometry.sphere(images,radius,true)

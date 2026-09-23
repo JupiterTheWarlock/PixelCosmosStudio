@@ -268,7 +268,7 @@ func _type_changed(value: int) -> void:
 	if updating: return
 	var previous: Dictionary = pages.planet.parameters
 	var next: Dictionary = Schema.type_defaults(value)
-	for key in ["seed","face_size","pixels","voxel","voxel_size","radius"]: next[key] = previous[key]
+	for key in ["seed","face_size","pixels","voxel","radius"]: next[key] = previous[key]
 	for field in Motion.fields("planet"): next[field[0]]=previous[field[0]]
 	pages.planet.parameters = next
 	_sync_widgets("planet")
@@ -426,6 +426,11 @@ func generate(domain: String) -> void:
 	d.status.text = "正在生成…"
 	var snapshot: Dictionary = d.parameters.duplicate(true)
 	var result: Dictionary = await d.pipeline.generate(domain,snapshot)
+	if result.has("error"):
+		d.busy = false
+		d.dirty = true
+		d.status.text = result.error
+		return
 	if domain=="planet":
 		if not d.result.is_empty():
 			d.world.remove_child(d.result.node)

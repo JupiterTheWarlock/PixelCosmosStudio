@@ -1,5 +1,6 @@
 extends RefCounted
 
+const MAX_VOXEL_DENSITY = 256
 const UNBOUNDED = ["noise_scale", "cloud_scale", "nebula_scale", "dust_scale"]
 
 const TYPES: Array[String] = ["湿润星球","干旱星球","群岛星球","无大气星球","气态星球一","气态星球二","冰冻星球","熔岩星球"]
@@ -10,7 +11,7 @@ static func fields(domain: String, planet_type: int = 2) -> Array:
 		["seed","种子",7421,1,999999,1,"基础"],
 		["face_size","每面贴图尺寸",128 if domain=="planet" else 512,32,1024,32,"基础"],
 		["pixel_art","像素风格",true,0,0,0,"像素与细节"],
-		["pixels","球面像素密度",100 if domain=="planet" else 200,12 if domain=="planet" else 100,5000 if domain=="planet" else 3000,1,"像素与细节"],
+		["pixels","像素 / 体素密度",100 if domain=="planet" else 200,12 if domain=="planet" else 100,5000 if domain=="planet" else 3000,1,"像素与细节"],
 		["dither","点阵过渡",true,0,0,0,"像素与细节"],
 		["dither_size","点阵大小",1,1,8,1,"像素与细节"],
 		["rotation","表面图案旋转（弧度）",.2,0,6.28,.01,"基础"]]
@@ -18,7 +19,6 @@ static func fields(domain: String, planet_type: int = 2) -> Array:
 		common.append_array([
 			["type","星球类型",2,0,7,1,"基础"],
 			["voxel","体素形态",false,0,0,0,"基础"],
-			["voxel_size","体素直径",32,12,64,2,"基础"],
 			["radius","星球半径（米）",1.0,.25,10,.05,"基础"],
 			["surface_enabled","显示表面",true,0,0,0,"表面"],
 			["surface_seed","地貌独立种子偏移",0,0,9999,1,"表面"],
