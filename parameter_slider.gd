@@ -19,7 +19,7 @@ func setup(field: Array) -> void:
 	step=0.0
 	tick_count=3
 	ticks_on_borders=true
-	tooltip_text="左端 %s · 中点（默认）%s · 右端 %s\n滑条非等距，数值框显示实际值；双击滑条回到默认。"%[str(low),str(center),str(high)]
+	tooltip_text=tr("左端 %s · 中点（默认）%s · 右端 %s\n滑条非等距，数值框显示实际值；双击滑条回到默认。")%[str(low),str(center),str(high)]
 	set_value_no_signal(.5)
 	custom_minimum_size.y=18
 

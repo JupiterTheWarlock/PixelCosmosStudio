@@ -14,4 +14,4 @@ glTFast 负责坐标系转换，不要再手工翻转 Z。半径单位为米。
 
 URP/HDRP 使用 glTFast 对应管线的材质支持；本目录不替换 Renderer Feature 或 Render Pipeline Asset。
 可把导入材质替换为项目自己的 Toon/Shader Graph 材质，保留本色贴图、顶点颜色（体素）、Alpha Clip 和法线。
-具体实测状态见项目根目录 VALIDATION.md；未测试的管线不标为通过。
+具体实测状态见../../docs/VALIDATION.md；未测试的管线不标为通过。

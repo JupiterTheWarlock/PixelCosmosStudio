@@ -7,26 +7,48 @@ const PIXEL_LIT = preload("res://adapters/godot/pixel_lit.gdshader")
 var pages: Dictionary = {}
 var updating: bool = false
 var tabs: TabContainer
+var preset_store = preload("res://preset_store.gd").new()
+var settings_dialog: AcceptDialog
 
 func _ready() -> void:
+	preload("res://localization.gd").install()
+	if not OS.get_cmdline_user_args().is_empty():
+		if "--smoke" in OS.get_cmdline_user_args() or "--ui-smoke" in OS.get_cmdline_user_args() or "--motion-smoke" in OS.get_cmdline_user_args(): preset_store.path="user://test_library.json"
+	preset_store.open()
+	TranslationServer.set_locale(str(preset_store.data.settings.get("locale","zh_CN")))
 	tabs = TabContainer.new()
 	tabs.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	tabs.offset_left = 16
-	tabs.offset_top = 12
+	tabs.offset_top = 52
 	tabs.offset_right = -16
 	tabs.offset_bottom = -12
 	add_child(tabs)
+	settings_dialog=preload("res://ui/studio_settings.gd").new()
+	add_child(settings_dialog)
+	settings_dialog.setup(preset_store)
+	settings_dialog.locale_selected.connect(func(_locale: String) -> void: _refresh_tab_titles())
+	var settings_button:=Button.new()
+	settings_button.text="设置"
+	add_child(settings_button)
+	settings_button.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	settings_button.offset_left=-112
+	settings_button.offset_right=-16
+	settings_button.offset_top=10
+	settings_button.offset_bottom=42
+	settings_button.pressed.connect(func() -> void: settings_dialog.popup_centered())
 	for domain in ["planet","sky"]:
 		pages[domain] = {"parameters":Schema.defaults(domain),"widgets":{},"rows":{},"result":{},"busy":false,"dirty":true,"yaw":0.0,"pitch":0.0,"distance":3.5}
 		_build_page(domain)
+	_refresh_tab_titles()
 	await generate("planet")
 	await generate("sky")
+	update_background()
 	if "--smoke" in OS.get_cmdline_user_args():
-		await load("res://test_studio.gd").new().run(self)
+		await load("res://tests/test_studio.gd").new().run(self)
 	elif "--ui-smoke" in OS.get_cmdline_user_args():
-		await load("res://test_ui.gd").new().run(self)
+		await load("res://tests/test_ui.gd").new().run(self)
 	elif "--motion-smoke" in OS.get_cmdline_user_args():
-		await load("res://test_motion.gd").new().run(self)
+		await load("res://tests/test_motion.gd").new().run(self)
 
 func _build_page(domain: String) -> void:
 	var page := HBoxContainer.new()
@@ -142,6 +164,11 @@ func _build_page(domain: String) -> void:
 		_sync_widgets(domain)
 		_dirty(domain))
 	_label(saved,"参数修改后自动更新预览。\n拖动滑条时稍停即可看到结果。")
+	var library:=preload("res://ui/preset_library.gd").new()
+	saved.add_child(library)
+	saved.move_child(library,0)
+	library.setup(self,preset_store,domain)
+	pages[domain].library=library
 	var actions := HBoxContainer.new()
 	settings.add_child(actions)
 	_button(actions,"重新生成",func() -> void: generate(domain))
@@ -244,8 +271,8 @@ func _add_field(domain: String, parent: Control, field: Array) -> void:
 			slider.value_changed.connect(func(position: float) -> void: spin.value=slider.to_actual(position))
 			spin.value_changed.connect(func(actual: float) -> void: slider.set_value_no_signal(slider.to_position(actual)))
 		else:
-			spin.tooltip_text="输入实际数值。默认 %s；范围 %s ～ %s。"%[str(field[2]),str(field[3]),str(field[4])]
-		if key in Schema.UNBOUNDED: spin.tooltip_text="Original size: no authored minimum or maximum; enter a finite number."
+			spin.tooltip_text=tr("输入实际数值。默认 %s；范围 %s ～ %s。")%[str(field[2]),str(field[3]),str(field[4])]
+		if key in Schema.UNBOUNDED: spin.tooltip_text="原作未设置大小的上下限，可输入数值。"
 		spin.value_changed.connect(func(value: float) -> void: _changed(domain,key,int(value) if field[2] is int else value))
 		control = spin
 	line.add_child(control)
@@ -254,7 +281,7 @@ func _add_field(domain: String, parent: Control, field: Array) -> void:
 			var baseline: Dictionary=Schema.type_defaults(int(pages[domain].parameters.type)) if domain=="planet" else Schema.defaults(domain)
 			control.value=baseline[key]
 			_changed(domain,key,baseline[key]))
-		reset.tooltip_text="恢复默认："+str(field[2])
+		reset.tooltip_text=tr("恢复默认：")+str(field[2])
 	pages[domain].widgets[key] = control
 	pages[domain].rows[key] = row
 
@@ -310,7 +337,7 @@ func _update_export_info(domain: String) -> void:
 	var p: Dictionary=pages[domain].parameters
 	var layers: int=2 if domain=="planet" and p.clouds_enabled else 1
 	var mib: float=float(p.face_size*p.face_size*6*4*p.noise_frames*layers)/1048576.0
-	pages[domain].export_info.text="%.1f 帧/秒 · %d 张 PNG\n未压缩约 %.0f MiB，PNG 实际大小取决于内容。\n静态导出固定为第 0 秒；动画不写入 GLB 轨道。"%[float(p.noise_frames)/p.noise_duration,p.noise_frames*6*layers,mib]
+	pages[domain].export_info.text=tr("%.1f 帧/秒 · %d 张 PNG\n未压缩约 %.0f MiB，PNG 实际大小取决于内容。\n静态导出固定为第 0 秒；动画不写入 GLB 轨道。")%[float(p.noise_frames)/p.noise_duration,p.noise_frames*6*layers,mib]
 
 func _button(parent: Control, text: String, callable: Callable) -> Button:
 	var button := Button.new()
@@ -344,7 +371,7 @@ func _lighting_controls(parent: Control) -> void:
 	sun.light_energy = 1.0
 	sun.visible = false
 	d.world.add_child(sun)
-	d.merge({"omni":omni,"sun":sun,"light_azimuth":-35.0,"light_elevation":30.0,"light_mode":0,"ambient":.65,"energy":1.0,"animate":false,"style":false,"levels":4.0,"style_dither":.08,"background_sky":false})
+	d.merge({"omni":omni,"sun":sun,"light_azimuth":-35.0,"light_elevation":30.0,"light_mode":0,"ambient":.65,"energy":1.0,"animate":not ("--smoke" in OS.get_cmdline_user_args() or "--ui-smoke" in OS.get_cmdline_user_args() or "--motion-smoke" in OS.get_cmdline_user_args()),"style":false,"levels":4.0,"style_dither":.08,"background_sky":true})
 	var row := HBoxContainer.new()
 	parent.add_child(row)
 	var kind := OptionButton.new()
@@ -362,6 +389,7 @@ func _lighting_controls(parent: Control) -> void:
 		var check := CheckBox.new()
 		check.text = pair[1]
 		var key: String = pair[0]
+		check.button_pressed=d[key]
 		check.toggled.connect(func(v: bool) -> void:
 			d[key]=v
 			if key=="style": apply_style()
@@ -450,7 +478,7 @@ func generate(domain: String) -> void:
 	d.busy = false
 	d.dirty = d.parameters!=snapshot
 	d.export_button.disabled = d.dirty
-	d.status.text = ("已生成 · 种子 %d · 本色资产，实时光照" if domain=="planet" else "已生成 · 种子 %d · 六面天空连续采样") % snapshot.seed
+	d.status.text = (tr("已生成 · 种子 %d · 本色资产，实时光照") if domain=="planet" else tr("已生成 · 种子 %d · 六面天空连续采样")) % snapshot.seed
 	if d.dirty:
 		d.status.text = "正在应用最新参数…"
 		if not "--smoke" in OS.get_cmdline_user_args(): d.timer.start()
@@ -524,7 +552,7 @@ func _export_dialog(domain: String) -> void:
 	_dialog("选择导出位置",FileDialog.FILE_MODE_OPEN_DIR,func(path: String) -> void:
 		var folder: String = path.path_join(domain+"_"+str(d.result.parameters.seed)+"_"+str(Time.get_ticks_msec()))
 		var error: Error = Pipeline.export_assets(d.result,folder)
-		d.status.text = "导出完成："+folder if error==OK else "导出失败："+error_string(error))
+		d.status.text = tr("导出完成：")+folder if error==OK else tr("导出失败：")+error_string(error))
 
 func _animation_dialog(domain: String) -> void:
 	var d: Dictionary = pages[domain]
@@ -540,11 +568,11 @@ func _animation_dialog(domain: String) -> void:
 		var exporter := Pipeline.new()
 		add_child(exporter)
 		var error: Error = await exporter.export_animation(domain,p,folder,func(frame: int,total: int) -> void:
-			d.status.text="动画导出 %d / %d 帧"%[frame,total],func() -> bool: return d.cancel_export)
+			d.status.text=tr("动画导出 %d / %d 帧")%[frame,total],func() -> bool: return d.cancel_export)
 		exporter.queue_free()
 		d.animation_exporting=false
 		d.cancel_button.visible=false
-		d.status.text="动画已导出："+folder if error==OK else ("已停止，部分文件保留在："+folder if error==ERR_SKIP else "动画导出失败："+error_string(error)))
+		d.status.text=tr("动画已导出：")+folder if error==OK else (tr("已停止，部分文件保留在：")+folder if error==ERR_SKIP else tr("动画导出失败：")+error_string(error)))
 
 func _preset_dialog(domain: String, loading: bool, palette_only: bool) -> void:
 	_dialog("载入配置" if loading else "保存配置",FileDialog.FILE_MODE_OPEN_FILE if loading else FileDialog.FILE_MODE_SAVE_FILE,func(path: String) -> void:
@@ -558,10 +586,12 @@ func _preset_dialog(domain: String, loading: bool, palette_only: bool) -> void:
 					if not parameters[key] is String: parameters.erase(key)
 			var data: Dictionary = {"format":"pixel-cosmos-palette" if palette_only else "pixel-cosmos-preset","version":2,"domain":domain,"parameters":parameters}
 			var error: Error = Pipeline.write_json(path,data)
-			pages[domain].status.text = "已保存："+path if error==OK else error_string(error))
+			pages[domain].status.text = tr("已保存：")+path if error==OK else error_string(error))
 
 func load_preset(domain: String, path: String, palette_only: bool = false) -> String:
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	return apply_preset_data(domain,JSON.parse_string(FileAccess.get_file_as_string(path)),palette_only)
+
+func apply_preset_data(domain: String, data: Variant, palette_only: bool = false) -> String:
 	if not data is Dictionary or data.get("version")!=2 or data.get("domain")!=domain: return "配置格式或页面类型不匹配。"
 	var expected: String = "pixel-cosmos-palette" if palette_only else "pixel-cosmos-preset"
 	if data.get("format")!=expected or not data.get("parameters") is Dictionary: return "不是有效的配置文件。"
@@ -629,7 +659,7 @@ func _set_motion_time(domain: String, seconds: float) -> void:
 	d.noise_time=seconds
 	d.timeline.max_value=d.parameters.noise_duration
 	d.timeline.set_value_no_signal(seconds)
-	d.time_label.text="%.1f / %.0f 秒"%[seconds,d.parameters.noise_duration]
+	d.time_label.text=tr("%.1f / %.0f 秒")%[seconds,d.parameters.noise_duration]
 	for mat in d.motion_materials:
 		mat.set_shader_parameter("noise_time",fposmod(seconds,d.parameters.noise_duration))
 
@@ -712,3 +742,11 @@ func _space_schemes(parent: Control) -> void:
 			for i in 8: pages.sky.parameters["palette"+str(i)]=scheme.colors[i+1]
 			_sync_widgets("sky")
 			_dirty("sky"))
+
+func _refresh_tab_titles() -> void:
+	for i in tabs.get_tab_count():
+		tabs.set_tab_title(i,tr("星球生成" if i==0 else "星空生成"))
+	for domain in pages:
+		if not pages[domain].has("settings_tabs"): continue
+		var titles: Array=["常用","动态","高级","配置"]
+		for i in 4: pages[domain].settings_tabs.set_tab_title(i,tr(titles[i]))

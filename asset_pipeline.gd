@@ -193,7 +193,7 @@ static func export_assets(result: Dictionary, folder: String) -> Error:
 	error = write_json(folder.path_join("preset.json"),{"format":"pixel-cosmos-preset","version":2,"domain":domain,"parameters":p})
 	if error!=OK: return error
 	for name in ["IMPORT_GUIDE.md","THIRD_PARTY_NOTICES.md"]:
-		error = DirAccess.copy_absolute(ProjectSettings.globalize_path("res://"+name),folder.path_join(name))
+		error = DirAccess.copy_absolute(ProjectSettings.globalize_path("res://"+("docs/" if name=="IMPORT_GUIDE.md" else "")+name),folder.path_join(name))
 		if error!=OK: return error
 	return OK
 
@@ -220,7 +220,7 @@ func export_animation(domain: String, p: Dictionary, folder: String, progress: C
 	if context_file==null: return FileAccess.get_open_error()
 	context_file.store_string(preload("res://noise_motion.gd").context(domain,snapshot))
 	context_file.close()
-	error=DirAccess.copy_absolute(ProjectSettings.globalize_path("res://ANIMATION_GUIDE.md"),folder.path_join("ANIMATION_GUIDE.md"))
+	error=DirAccess.copy_absolute(ProjectSettings.globalize_path("res://docs/ANIMATION_GUIDE.md"),folder.path_join("ANIMATION_GUIDE.md"))
 	if error!=OK: return error
 	configure(domain,snapshot)
 	for frame in snapshot.noise_frames:

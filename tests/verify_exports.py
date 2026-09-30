@@ -4,7 +4,7 @@ import json
 import struct
 from PIL import Image, ImageChops
 
-root = Path(__file__).parent / 'exports/v2'
+root = Path(__file__).resolve().parents[1] / 'exports/v2'
 faces = ['px', 'nx', 'py', 'ny', 'pz', 'nz']
 
 def direction(face, x, y, size):
