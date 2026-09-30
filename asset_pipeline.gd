@@ -76,13 +76,16 @@ func generate(domain: String, parameters: Dictionary) -> Dictionary:
 			root.add_child(surface)
 			surface_extent = Geometry.outer_radius(surface.mesh)*p.radius
 		if p.clouds_enabled:
-			var clouds: MeshInstance3D = Geometry.sphere(cloud_images,(surface_extent+p.radius*p.cloud_height)/Geometry.sphere_inradius(),true)
+			var clearance: float=surface_extent/p.radius+p.cloud_height
+			var clouds: MeshInstance3D = Geometry.voxel_clouds(cloud_images,int(p.pixels),clearance) if p.voxel else Geometry.sphere(cloud_images,clearance/Geometry.sphere_inradius(),true)
+			clouds.scale=Vector3.ONE*p.radius
 			clouds.name = "CloudShell"
 			clouds.rotation.y = deg_to_rad(p.phase)
 			clouds.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			root.add_child(clouds)
 		if p.rings_enabled:
-			var rings: MeshInstance3D = Geometry.ring(p.ring_radius*p.radius,p.ring_width*p.radius,p.ring_bands,Color(p.ring_color),p.seed)
+			var rings: MeshInstance3D = Geometry.voxel_ring(p.ring_radius,p.ring_width,int(p.pixels),p.ring_bands,Color(p.ring_color),p.seed) if p.voxel else Geometry.ring(p.ring_radius,p.ring_width,p.ring_bands,Color(p.ring_color),p.seed)
+			rings.scale=Vector3.ONE*p.radius
 			rings.name = "Rings"
 			rings.rotation.x = deg_to_rad(p.ring_tilt)
 			root.add_child(rings)
