@@ -11,6 +11,9 @@ var preset_store = preload("res://preset_store.gd").new()
 var settings_dialog: AcceptDialog
 
 func _ready() -> void:
+	theme=preload("res://ui/source_theme.gd").build()
+	texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST
+	RenderingServer.set_default_clear_color(preload("res://ui/source_theme.gd").BACKGROUND)
 	preload("res://localization.gd").install()
 	if not OS.get_cmdline_user_args().is_empty():
 		if "--smoke" in OS.get_cmdline_user_args() or "--ui-smoke" in OS.get_cmdline_user_args() or "--motion-smoke" in OS.get_cmdline_user_args(): preset_store.path="user://test_library.json"
@@ -110,7 +113,7 @@ func _build_page(domain: String) -> void:
 		pages[domain].widgets[key]=color
 		pages[domain].rows[key]=color
 		used.append(key)
-	var color_actions := HBoxContainer.new()
+	var color_actions := HFlowContainer.new()
 	common.add_child(color_actions)
 	_button(color_actions,"随机配色",func() -> void: _random_colors(domain))
 	_button(color_actions,"重置配色",func() -> void: _reset_colors(domain))
@@ -347,17 +350,19 @@ func _button(parent: Control, text: String, callable: Callable) -> Button:
 	return button
 
 func _number(parent: Control, text: String, value: float, low: float, high: float, step_value: float, callable: Callable) -> SpinBox:
+	var group:=HBoxContainer.new()
+	parent.add_child(group)
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size",12)
-	parent.add_child(label)
+	group.add_child(label)
 	var spin := SpinBox.new()
 	spin.min_value = low
 	spin.max_value = high
 	spin.step = step_value
 	spin.value = value
 	spin.value_changed.connect(callable)
-	parent.add_child(spin)
+	group.add_child(spin)
 	return spin
 
 func _lighting_controls(parent: Control) -> void:
@@ -372,7 +377,7 @@ func _lighting_controls(parent: Control) -> void:
 	sun.visible = false
 	d.world.add_child(sun)
 	d.merge({"omni":omni,"sun":sun,"light_azimuth":-35.0,"light_elevation":30.0,"light_mode":0,"ambient":.65,"energy":1.0,"animate":not ("--smoke" in OS.get_cmdline_user_args() or "--ui-smoke" in OS.get_cmdline_user_args() or "--motion-smoke" in OS.get_cmdline_user_args()),"style":false,"levels":4.0,"style_dither":.08,"background_sky":true})
-	var row := HBoxContainer.new()
+	var row := HFlowContainer.new()
 	parent.add_child(row)
 	var kind := OptionButton.new()
 	kind.add_item("点光源")
@@ -383,7 +388,7 @@ func _lighting_controls(parent: Control) -> void:
 	_number(row,"灯光",1.0,0,5,.1,func(v: float) -> void: d.energy=v; update_lighting())
 	_number(row,"方位 °",-35,-180,180,5,func(v: float) -> void: d.light_azimuth=v; update_lighting())
 	_number(row,"高度 °",30,-85,85,5,func(v: float) -> void: d.light_elevation=v; update_lighting())
-	var options := HBoxContainer.new()
+	var options := HFlowContainer.new()
 	parent.add_child(options)
 	for pair in [["animate","播放自转/云层"],["style","像素分段光照"],["background_sky","使用星空背景"]]:
 		var check := CheckBox.new()
@@ -395,7 +400,7 @@ func _lighting_controls(parent: Control) -> void:
 			if key=="style": apply_style()
 			if key=="background_sky": update_background())
 		options.add_child(check)
-	var style_row := HBoxContainer.new()
+	var style_row := HFlowContainer.new()
 	parent.add_child(style_row)
 	_number(style_row,"明暗层数",4,2,8,1,func(v: float) -> void: d.levels=v; apply_style())
 	_number(style_row,"光照点阵",.08,0,.3,.01,func(v: float) -> void: d.style_dither=v; apply_style())
@@ -688,7 +693,7 @@ func _apply_motion(domain: String) -> void:
 func _label(parent: Control, title: String) -> void:
 	var label := Label.new()
 	label.text = title
-	label.add_theme_color_override("font_color",Color("b3c4d8"))
+	label.add_theme_color_override("font_color",preload("res://ui/source_theme.gd").TEXT)
 	label.add_theme_font_size_override("font_size",13)
 	parent.add_child(label)
 
@@ -744,6 +749,7 @@ func _space_schemes(parent: Control) -> void:
 			_dirty("sky"))
 
 func _refresh_tab_titles() -> void:
+	preload("res://ui/source_theme.gd").apply_locale(theme)
 	for i in tabs.get_tab_count():
 		tabs.set_tab_title(i,tr("星球生成" if i==0 else "星空生成"))
 	for domain in pages:

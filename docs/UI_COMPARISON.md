@@ -12,7 +12,7 @@
 | 配色 | PixelPlanets 高对比黑白灰；PixelSpace 暖米色文字、按钮配深色底和紫灰悬停 | 不同控件基本沿用引擎默认色 | 统一为一套原作衍生 Theme；不让两个页各自换一套风格 |
 | 排布 | 紧凑左右布局，色板与图层突出，装饰与像素预览相协调 | 表单、分组和底部预览控制较密集 | 保留左右结构，强化色板与主要动作，把播放/灯光整理成预览工具栏 |
 
-推荐以 PixelSpace 的完整配色与控件样式为主、PixelPlanets 的紧凑交互为辅。保留本工具的星球/星空页、常用/动态/高级/配置分组、预设库和导出能力。原作参数量较少，不宜把所有新功能直接塞进它的单层面板。这里是比较与建议，尚未替换正式主题。
+已按此方案应用正式主题：以 PixelSpace 的完整配色与控件样式为主，使用原作滑块、PixelPlanets 勾选贴图和 Silkscreen 英文字体；Godot 4 主题实现位于 `ui/source_theme.gd`。中文切换到清晰的常规字体，JSON 检视保留常规字体。播放和灯光控件按完整小组换行，适应中英文宽度。保留本工具的星球/星空页、常用/动态/高级/配置分组、预设库和导出能力。
 
 依据为固定参考版本中的 `PixelPlanets/GUI/Theme.tres`、`GUI/GUI.tscn`、`GUI/ColorPickerButton.tscn`，以及 `PixelSpace/GUI/Theme.tres`、`GUI/GUI.tscn` 和字体/滑块/勾选贴图。源版本见根目录 `THIRD_PARTY_NOTICES.md`。
 

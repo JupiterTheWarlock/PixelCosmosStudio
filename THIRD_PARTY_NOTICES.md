@@ -6,6 +6,8 @@ Upstream author: Deep-Fold.
 
 Adapted: discrete palette shading, value-noise/fBm layering, ordered dithering; exact terrestrial and warm-space palette values; stars-special.png sprite atlas. New: 3D sampling, geometry, baking and export UI.
 
+UI adaptation: `ui/source_theme.gd` ports PixelSpace's navy, beige and purple-gray palette and hard-edged control styling to Godot 4. `assets/ui/grabber.png`, `grabber-highlight.png`, and `slkscre.ttf` are unchanged copies from PixelSpace/GUI; `check.png` and `uncheck.png` are unchanged copies from PixelPlanets/GUI. The Silkscreen font's embedded author notice identifies Jason Kottke and is preserved. Chinese text uses Godot's font fallback rather than replacing missing glyphs. These assets are source UI resources, not generated planet/space exports.
+
 PixelSpace README: Code available under MIT license, but do not distribute or sell any generated images on their own. Feel free to use them in your games or other projects however.
 
 ## PixelPlanets
