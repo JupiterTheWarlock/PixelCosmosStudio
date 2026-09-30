@@ -40,7 +40,7 @@ adapters/unity 基于 glTFast 6.7.1，目标 Unity 2022.3 / Built-in。先安装
 
 ## Unreal Engine
 
-当前电脑没有 UE，辅助脚本尚未做实际引擎验证。使用引擎 glTF 导入功能加载 planet.glb；表面使用 Default Lit，体素材质读取 Vertex Color，云层使用 Masked。模型原始单位为米，检查导入后的实际尺寸。
+UE 辅助脚本尚未做实际引擎验证。使用引擎 glTF 导入功能加载 planet.glb；表面使用 Default Lit，体素材质读取 Vertex Color，云层使用 Masked。模型原始单位为米，检查导入后的实际尺寸。
 
 天空可用全景 PNG 贴到内向球体，以 Unlit/Emissive 材质显示；或按目标版本要求制作 cubemap。adapters/unreal 提供编辑器导入辅助脚本与说明。没有声称适配所有 UE 管线的像素 shader。
 

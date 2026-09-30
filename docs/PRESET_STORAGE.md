@@ -21,6 +21,6 @@
 
 Web 版使用浏览器文件选择器和下载确认弹窗；桌面版继续选择本机目录。动画包生成后点击“下载文件”才开始下载，取消导出会清理本次浏览器临时文件。小型预设库使用 localStorage，导出的 PNG/GLB/ZIP 不会保存在预设库中。
 
-尚未发布到 itch。公开前仍需在 itch 的实际 iframe 中确认加载、刷新后的存档和文件下载；本机同源浏览器验证不覆盖嵌入页面的存储与下载权限。
+工具已发布到 itch。这里记录的同源浏览器验证不覆盖 itch 嵌入页面的存储与下载权限；实际 iframe 中的加载、刷新后存档和文件下载仍需单独确认。
 
 相关官方文档：[Godot 数据路径](https://docs.godotengine.org/en/4.4/tutorials/io/data_paths.html)、[Web 导出](https://docs.godotengine.org/en/4.4/tutorials/export/exporting_for_web.html)、[JavaScriptBridge](https://docs.godotengine.org/en/4.4/classes/class_javascriptbridge.html)。Godot 自身的 Web `user://` 使用 IndexedDB；本工具的小型预设库选择显式 localStorage 读写，方便即时检查存储错误，二者不是同一存储位置。

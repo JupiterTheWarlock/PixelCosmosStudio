@@ -4,7 +4,7 @@
 
 ## 打开与使用
 
-当前电脑双击 start.cmd。其他电脑使用 Godot 4.4.1 导入 project.godot，按 F5。exports/v2 可直接打开查看截图。
+使用 Godot 4.4.1 导入 `project.godot`，按 F5。Windows 可在配置 `GODOT_EXECUTABLE` 或将 `godot` 加入 PATH 后双击 `start.cmd`。运行验证后，截图和报告生成到 `exports/v2`。
 
 1. 在“星球生成”“星空生成”两个页面之间切换。参数、相机和结果分别保存。
 2. 左侧预览，右侧配置，与原仓库布局对齐。“常用”页直接选择类型、种子、配色和图层；修改后自动更新。星球提供 8 类预设、球体/体素形态、独立云层与星环。
@@ -16,7 +16,7 @@
 8. 右上角“设置”切换简体中文 / English，语言选择会保存；面板内可访问原作者项目及 PixelSpace fork。
 9. “配置”页的“我的预设”支持命名保存、选择应用、JSON 检视、复制、粘贴导入及删除。桌面保存到 `user://preset_library.json`，Web 保存到当前浏览器的站点存储。详见 [预设存储与 Web 准备](docs/PRESET_STORAGE.md)。
 10. 体素模式同时应用于星球、云和星环，三者共用像素 / 体素密度。首次启动默认英文，已有语言存档时按上次选择恢复。
-11. 星空“常用 → 图层与显示”关闭 **Pixel art / 像素风格**，使用用户 PixelSpace fork 的平滑模式思路：连续噪声采样、连续色板过渡、柔和的远景行星边缘。预览、静态导出、动画和实现说明共用这个开关。详见 [fork 复用说明](docs/SKY_FORK_REUSE.md)。
+11. 星空“常用 → 图层与显示”关闭 **Pixel art / 像素风格**，使用 [PixelSpace fork](https://github.com/JupiterTheWarlock/PixelSpace) 的平滑模式思路：连续噪声采样、连续色板过渡、柔和的远景行星边缘。预览、静态导出、动画和实现说明共用这个开关。详见 [fork 复用说明](docs/SKY_FORK_REUSE.md)。
 
 效果参数滑条的中点为默认效果，两端保留完整范围，数值不是等距分布。直接输入可精确调整；点击 ↺ 或双击滑条回到默认。种子及没有双向空间的边界参数保留输入框。与原项目的面板对照及取舍见 docs/UI_COMPARISON.md。
 

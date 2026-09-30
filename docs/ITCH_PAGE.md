@@ -1,18 +1,18 @@
-# itch 页面文案草稿
+# itch 页面文案与发布设置
 
 Title: **Pixel Cosmos Studio**
 
-已建立的草稿：[编辑页面](https://itch.io/game/edit/5078495) · [作者预览](https://jupiter-the-warlock.itch.io/pixel-cosmos-studio)。当前保留 Draft，尚未公开。2026-09-30 自动上传遇到浏览器 `Not allowed`，两个发布 ZIP、封面与截图仍在本机；草稿尚无文件，不能运行网页版。
+在线体验与下载：[Pixel Cosmos Studio](https://jupiter-the-warlock.itch.io/pixel-cosmos-studio)。以下提供项目介绍与发布配置参考，线上页面的排版和文案可能有所调整。
 
-Short description: **Create pixel and voxel planets, animated clouds, and space skyboxes. Export assets for your game.**
+Short description: **An open-source tool for pixel and voxel planets, plus space skyboxes. Free to try online.**
 
 Classification: **Tools**. Kind: **HTML**. Languages: **English, Simplified Chinese**. Suggested tags: **Pixel Art, Voxel, Procedural Generation, Space, Godot, 3D**. Mark Windows only for the downloadable Windows executable; don't claim tested macOS, Linux or mobile support.
 
 ## Page description
 
-**Build a little universe for your game.**
+**Pixel and voxel planets, plus space skyboxes.**
 
-Free to use, with optional donations. The browser tool and Windows download have no minimum payment.
+Open source and free to try online. The browser tool and Windows download have no minimum payment; donations are optional.
 
 Pixel Cosmos Studio is a standalone planet and space generator inspired by Deep-Fold's PixelPlanets and PixelSpace. It brings their layered colors and pixel style into 3D, with separate planet and skybox workspaces.
 
@@ -57,15 +57,15 @@ Development used AI assistance for code and documentation. The planets, noise, a
 
 ## Publishing settings to review
 
-本次需要手动在草稿选择两个 ZIP：`PixelCosmosStudio-web.zip` 勾选“在浏览器中运行”，`PixelCosmosStudio-windows.zip` 标为 Windows 下载。封面使用 `presskit/cover.png`，其余四张为截图。保存后先用作者预览核对网页运行与下载，再公开。
+发布包：`PixelCosmosStudio-web.zip` 用于“在浏览器中运行”，`PixelCosmosStudio-windows.zip` 用于 Windows 下载。
 
-- Visibility: keep **Draft** until the files, images and price have been reviewed.
+- Visibility: **Published**.
 - Upload the Web ZIP and tick **This file will be played in the browser**.
-- Use **Click to launch in fullscreen**; the tool has a wide desktop layout. Keep click-to-play enabled.
+- Embed size: **1062 × 600**, with click-to-play and the fullscreen button enabled.
 - Single-threaded Godot Web build; no SharedArrayBuffer/extra cross-origin isolation requirement.
 - Leave **Mobile friendly** unchecked until the touch layout has been tested.
 - Upload the Windows ZIP as a downloadable Windows tool.
 - AI disclosure: **Yes → Code, Text & Dialog** (code and documentation). Do not label procedural image output itself as an online AI image service.
-- Pricing: **$0 minimum / optional donations** for both Web and Windows. Source code license: **MIT**. These choices were approved by the owner on 2026-09-30.
+- Pricing: **$0 minimum / optional donations** for both Web and Windows. New source code license: **MIT**; third-party materials retain their own terms.
 
 Official references checked 2026-09-30: [HTML5 upload](https://itch.io/docs/creators/html5), [quality guidelines](https://itch.io/docs/creators/quality-guidelines), [AI disclosure fields](https://itch.io/t/4309690/generative-ai-disclosure-tagging), [Godot 4.4 Web export](https://docs.godotengine.org/en/4.4/tutorials/export/exporting_for_web.html).

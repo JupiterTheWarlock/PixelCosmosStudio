@@ -1,6 +1,6 @@
 # PixelSpace fork 的去像素化模式
 
-参考用户仓库 [JupiterTheWarlock/PixelSpace](https://github.com/JupiterTheWarlock/PixelSpace)，固定版本 `4d86a586cbdb913ebc21a7cfbd7f1cf8589d0865`。用户希望复用的是 `pixel_art` 开关关闭后的平滑渲染，不能只把它理解成二维平铺或天空接缝处理。
+参考 [JupiterTheWarlock/PixelSpace](https://github.com/JupiterTheWarlock/PixelSpace)，固定版本 `4d86a586cbdb913ebc21a7cfbd7f1cf8589d0865`。此处移植的是 `pixel_art` 开关关闭后的平滑渲染；二维平铺与天空接缝处理是另外两项功能。
 
 ## 操作与复用范围
 
