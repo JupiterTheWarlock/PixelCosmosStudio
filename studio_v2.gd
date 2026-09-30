@@ -127,6 +127,8 @@ func _build_page(domain: String) -> void:
 	for key in toggles:
 		var check := CheckBox.new()
 		check.text = fields[key][1]
+		if domain=="sky" and key=="pixel_art":
+			check.tooltip_text = "关闭后使用平滑模式：星云和星尘连续采样、颜色连续过渡，远景行星边缘柔化。"
 		check.toggled.connect(func(value: bool) -> void: _changed(domain,key,value))
 		switches.add_child(check)
 		pages[domain].widgets[key]=check
@@ -464,6 +466,7 @@ func generate(domain: String) -> void:
 		d.dirty = true
 		d.status.text = result.error
 		return
+	d.view.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if snapshot.pixel_art else CanvasItem.TEXTURE_FILTER_LINEAR
 	if domain=="planet":
 		if not d.result.is_empty():
 			d.world.remove_child(d.result.node)

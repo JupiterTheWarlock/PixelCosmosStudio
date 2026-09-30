@@ -173,7 +173,16 @@ vec4 evaluate_direction(vec3 d){
   }}
   if(decor_enabled){for(int i=0;i<32;i++){
    if(i>=decor_count)break;vec3 sd=random_direction(float(i),123.0);
-   if(length(d-sd)<decor_size){col=sky_color(2.0+fbm(d*90.0,3)*4.0);alpha=1.0;}
+   float distance_to_planet=length(d-sd);
+   // PixelSpace fork Planet.tscn: 0.485..0.505 around a radius of 0.5.
+   float coverage=pixel_art?(distance_to_planet<decor_size?1.0:0.0):1.0-smoothstep(.97*decor_size,1.01*decor_size,distance_to_planet);
+   if(coverage>0.0){
+    vec3 planet_color=sky_color(2.0+fbm(d*90.0,3)*4.0);
+    // Straight alpha, including transparent exports and overlapping planets.
+    float combined_alpha=coverage+alpha*(1.0-coverage);
+    col=(planet_color*coverage+col*alpha*(1.0-coverage))/combined_alpha;
+    alpha=combined_alpha;
+   }
   }}
  }else{
   vec3 p=d*noise_scale+vec3(2.0+surface_seed*.13);float n=fbm(p,octaves)+stipple;

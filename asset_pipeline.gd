@@ -64,7 +64,7 @@ func generate(domain: String, parameters: Dictionary) -> Dictionary:
 	var result: Dictionary = {"domain":domain,"parameters":p,"images":images,"cloud_images":cloud_images}
 	if domain=="sky":
 		result.panorama = await bake(6,Vector2i(size*4,size*2))
-		result.sky = make_sky(images,p.pixel_art)
+		result.sky = make_sky(images,p.pixel_art,Color(p.background_color))
 	else:
 		var root := Node3D.new()
 		var surface_extent: float = p.radius
@@ -109,10 +109,11 @@ static func make_cubemap(images: Array[Image]) -> Cubemap:
 	cube.create_from_images(order)
 	return cube
 
-static func make_sky(images: Array[Image], nearest: bool = true) -> Sky:
+static func make_sky(images: Array[Image], nearest: bool = true, background: Color = Color.BLACK) -> Sky:
 	# Explicit face selection avoids renderer-specific Cubemap upload ordering.
 	var shader := Shader.new()
 	shader.code = """shader_type sky;
+uniform vec4 background_color:source_color=vec4(0.0,0.0,0.0,1.0);
 uniform sampler2D px:source_color,filter_nearest,repeat_disable;
 uniform sampler2D nx:source_color,filter_nearest,repeat_disable;
 uniform sampler2D py:source_color,filter_nearest,repeat_disable;
@@ -120,21 +121,23 @@ uniform sampler2D ny:source_color,filter_nearest,repeat_disable;
 uniform sampler2D pz:source_color,filter_nearest,repeat_disable;
 uniform sampler2D nz:source_color,filter_nearest,repeat_disable;
 void sky(){
- vec3 d=EYEDIR,a=abs(d);vec2 q;
+ vec3 d=EYEDIR,a=abs(d);vec2 q;vec4 sample_color;
  if(a.x>=a.y&&a.x>=a.z){
   q=vec2(d.x>0.0?-d.z:d.z,-d.y)/a.x*.5+.5;
-  COLOR=d.x>0.0?texture(px,q).rgb:texture(nx,q).rgb;
+  sample_color=d.x>0.0?texture(px,q):texture(nx,q);
  }else if(a.y>=a.z){
   q=vec2(d.x,d.y>0.0?d.z:-d.z)/a.y*.5+.5;
-  COLOR=d.y>0.0?texture(py,q).rgb:texture(ny,q).rgb;
+  sample_color=d.y>0.0?texture(py,q):texture(ny,q);
  }else{
   q=vec2(d.z>0.0?d.x:-d.x,-d.y)/a.z*.5+.5;
-  COLOR=d.z>0.0?texture(pz,q).rgb:texture(nz,q).rgb;
+  sample_color=d.z>0.0?texture(pz,q):texture(nz,q);
  }
+ COLOR=mix(background_color.rgb,sample_color.rgb,sample_color.a);
 }"""
 	if not nearest: shader.code = shader.code.replace("filter_nearest","filter_linear")
 	var mat := ShaderMaterial.new()
 	mat.shader = shader
+	mat.set_shader_parameter("background_color",background)
 	for face in 6: mat.set_shader_parameter(FACES[face],ImageTexture.create_from_image(images[face]))
 	var sky := Sky.new()
 	sky.sky_material = mat
@@ -181,7 +184,7 @@ static func export_assets(result: Dictionary, folder: String) -> Error:
 		var cube: Cubemap = make_cubemap(images)
 		error = ResourceSaver.save(cube,folder.path_join("sky_cubemap.res"),ResourceSaver.FLAG_COMPRESS)
 		if error!=OK: return error
-		error = ResourceSaver.save(make_sky(images,p.pixel_art),folder.path_join("sky.res"),ResourceSaver.FLAG_COMPRESS)
+		error = ResourceSaver.save(make_sky(images,p.pixel_art,Color(p.background_color)),folder.path_join("sky.res"),ResourceSaver.FLAG_COMPRESS)
 		if error!=OK: return error
 	var manifest: Dictionary = {
 		"format":"pixel-cosmos","version":2,"domain":domain,"parameters":p,

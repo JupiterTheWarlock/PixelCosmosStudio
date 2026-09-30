@@ -1,5 +1,6 @@
 shader_type canvas_item;
-render_mode unshaded;
+// Write straight RGBA to the export viewport; blending would premultiply soft edges.
+render_mode unshaded, blend_disabled;
 #include "res://noise_core.gdshaderinc"
 void fragment(){
  vec2 uv=UV;

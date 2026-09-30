@@ -89,6 +89,16 @@ func run(studio: Control) -> void:
 	var originals: Array = JSON.parse_string(FileAccess.get_file_as_string("res://assets/space_palettes.json"))
 	assert(s.result.parameters.palette0==originals[0].colors[1],"Palette did not reach generated output")
 	assert(not s.export_button.disabled,"Current preview must be exportable")
+	s.widgets.pixel_art.button_pressed=false
+	await settled(studio,"sky")
+	assert(not s.result.parameters.pixel_art,"Smooth toggle must reach the generated asset")
+	assert(s.view.texture_filter==CanvasItem.TEXTURE_FILTER_LINEAR,"Smooth preview must not enlarge with nearest filtering")
+	assert(studio.texture_filter==CanvasItem.TEXTURE_FILTER_NEAREST,"Pixel UI retains its own filtering")
+	await RenderingServer.frame_post_draw
+	studio.get_viewport().get_texture().get_image().save_png("res://exports/v2/sky_smooth_tab.png")
+	s.widgets.pixel_art.button_pressed=true
+	await settled(studio,"sky")
+	assert(s.view.texture_filter==CanvasItem.TEXTURE_FILTER_NEAREST,"Pixel preview filtering must be restored")
 	preload("res://asset_pipeline.gd").write_json("res://exports/v2/ui_report.json",{"passed":true,"default_centered_sliders":true,"monotone_full_range":true,"precise_defaults_preserved":true,"single_parameter_reset":true,"slider_updates":true,"latest_edit_wins":true,"layer_updates":true,"original_palette_click":true})
 	print("UI_TEST_OK")
 	studio.get_tree().quit()
