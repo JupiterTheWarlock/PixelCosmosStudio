@@ -32,7 +32,7 @@ func setup(owner_studio: Control, library: RefCounted, page: String) -> void:
 	add_child(actions)
 	button(actions,"应用",apply_selected)
 	button(actions,"复制 JSON",func() -> void:
-		if not inspector.text.is_empty(): DisplayServer.clipboard_set(inspector.text))
+		if not inspector.text.is_empty(): studio.copy_text(inspector.text,tr("复制 JSON")))
 	button(actions,"删除",confirm_remove)
 	inspector=TextEdit.new()
 	inspector.editable=false

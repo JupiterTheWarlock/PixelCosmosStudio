@@ -1,5 +1,15 @@
 # v2 验证记录
 
+## itch 发布准备
+
+2026-09-30，Godot 4.4.1 单线程 Web / Chromium：实际加载并渲染双页面，默认英文。中文切换与命名预设在页面刷新后保留，内置 Noto 字库显示中文。JSON 文件选择器导入种子 12345 的配置成功；低于允许范围的动画帧数被拒绝，原参数保留。预设 JSON 的浏览器复制弹窗包含完整数据。
+
+静态星球 ZIP 已通过浏览器实际下载，包含 GLB、六面本色/云层 PNG、配置与说明；CRC 校验通过。默认 96 帧、每面 128 像素的动画也实际下载完成（约 7.4 MiB），`complete=true`、`completed_frames=96`、4 fps；1152 张帧 PNG 齐全，算法文件 SHA-256 与动画配置一致。独立 Chromium 使用真实鼠标/键盘输入验证，下载目录显式指向本项目的 `dist/browser-downloads/`，没有使用浏览器个人档案。
+
+Windows release 的 EXE + PCK 已构建并实际启动。UI、静态导出、动态循环、GLB 回读、ZIP 往返检查通过；常规 GPU 测试退出时仍有下文记录的 GLES3 纹理释放错误。发布包包含原作、字体与 Godot 许可。
+
+尚未验证 itch 实际 iframe、Firefox、Safari、手机触控。itch 草稿已建立，自动上传因浏览器文件选择器返回 `Not allowed` 未完成；草稿仍为 Draft，尚无上传文件。需手动上传发布包后在真实嵌入页面复测，再公开。构建与上架步骤见 [RELEASE_BUILD.md](RELEASE_BUILD.md)。
+
 ## PixelSpace fork 去像素化
 
 2026-09-30，Godot 4.4.1 Compatibility / AMD RX 6700 XT：`test_sky_smooth.gd` 通过。测试画面中，星云从 7 种离散颜色变为 445 种、星尘从 9 种变为 568 种；平滑输出不受像素密度和点阵设置影响，噪声仍可变化并完整循环。远景行星检出 979 个半透明边缘像素，straight alpha 与背景合成误差低于 0.005。

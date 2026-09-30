@@ -3,14 +3,17 @@ extends Control
 const Schema = preload("res://parameters.gd")
 const Pipeline = preload("res://asset_pipeline.gd")
 const Motion = preload("res://noise_motion.gd")
+const Archive = preload("res://web/export_archive.gd")
 const PIXEL_LIT = preload("res://adapters/godot/pixel_lit.gdshader")
 var pages: Dictionary = {}
 var updating: bool = false
 var tabs: TabContainer
 var preset_store = preload("res://preset_store.gd").new()
 var settings_dialog: AcceptDialog
+var browser_files = preload("res://web/browser_files.gd").new()
 
 func _ready() -> void:
+	add_child(browser_files)
 	theme=preload("res://ui/source_theme.gd").build()
 	texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST
 	RenderingServer.set_default_clear_color(preload("res://ui/source_theme.gd").BACKGROUND)
@@ -150,8 +153,8 @@ func _build_page(domain: String) -> void:
 	_label(motion,"云层形变、海水流动、气态扰动" if domain=="planet" else "星云演化，星点位置保持不变")
 	_label(motion,"时长越长变化越慢；次数越多变化越快。\n动画导出仅包含噪声变化，不包含自转或灯光。")
 	_button(motion,"复制动态实现说明",func() -> void:
-		DisplayServer.clipboard_set(Motion.context(domain,pages[domain].parameters))
-		pages[domain].status.text="已复制算法、参数和接入说明。")
+		copy_text(Motion.context(domain,pages[domain].parameters),tr("动态实现说明"))
+		if not OS.has_feature("web"): pages[domain].status.text="已复制算法、参数和接入说明。")
 	_button(motion,"导出循环动画…",func() -> void: _animation_dialog(domain))
 	var export_info := Label.new()
 	export_info.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
@@ -282,10 +285,11 @@ func _add_field(domain: String, parent: Control, field: Array) -> void:
 		control = spin
 	line.add_child(control)
 	if control is SpinBox and key!="seed":
-		var reset: Button=_button(line,"↺",func() -> void:
+		var reset: Button=_button(line,"",func() -> void:
 			var baseline: Dictionary=Schema.type_defaults(int(pages[domain].parameters.type)) if domain=="planet" else Schema.defaults(domain)
 			control.value=baseline[key]
 			_changed(domain,key,baseline[key]))
+		reset.icon=preload("res://assets/ui/reset.svg")
 		reset.tooltip_text=tr("恢复默认：")+str(field[2])
 	pages[domain].widgets[key] = control
 	pages[domain].rows[key] = row
@@ -557,6 +561,14 @@ func _dialog(title: String, mode: FileDialog.FileMode, callback: Callable) -> vo
 func _export_dialog(domain: String) -> void:
 	var d: Dictionary = pages[domain]
 	if d.busy or d.dirty or d.result.is_empty(): return
+	if OS.has_feature("web"):
+		var folder:=Archive.workspace()
+		if folder.is_empty(): d.status.text=tr("导出失败：")+error_string(ERR_CANT_CREATE); return
+		var error:=Pipeline.export_assets(d.result,folder)
+		if error==OK: error=browser_files.offer_archive(folder,domain+"_"+str(d.result.parameters.seed)+".zip")
+		else: Archive.cleanup(folder)
+		d.status.text="文件已准备好" if error==OK else tr("导出失败：")+error_string(error)
+		return
 	_dialog("选择导出位置",FileDialog.FILE_MODE_OPEN_DIR,func(path: String) -> void:
 		var folder: String = path.path_join(domain+"_"+str(d.result.parameters.seed)+"_"+str(Time.get_ticks_msec()))
 		var error: Error = Pipeline.export_assets(d.result,folder)
@@ -567,33 +579,65 @@ func _animation_dialog(domain: String) -> void:
 	if d.animation_exporting:
 		d.status.text="动画正在导出，请等待完成。"
 		return
+	if OS.has_feature("web"):
+		var folder:=Archive.workspace()
+		if folder.is_empty(): d.status.text=tr("动画导出失败：")+error_string(ERR_CANT_CREATE); return
+		await _export_animation_to_folder(domain,folder,true)
+		return
 	_dialog("选择循环动画导出位置",FileDialog.FILE_MODE_OPEN_DIR,func(path: String) -> void:
-		var p: Dictionary = d.parameters.duplicate(true)
-		var folder: String = path.path_join(domain+"_animation_"+str(p.seed)+"_"+str(Time.get_ticks_msec()))
-		d.animation_exporting=true
-		d.cancel_export=false
-		d.cancel_button.visible=true
-		var exporter := Pipeline.new()
-		add_child(exporter)
-		var error: Error = await exporter.export_animation(domain,p,folder,func(frame: int,total: int) -> void:
-			d.status.text=tr("动画导出 %d / %d 帧")%[frame,total],func() -> bool: return d.cancel_export)
-		exporter.queue_free()
-		d.animation_exporting=false
-		d.cancel_button.visible=false
-		d.status.text=tr("动画已导出：")+folder if error==OK else (tr("已停止，部分文件保留在：")+folder if error==ERR_SKIP else tr("动画导出失败：")+error_string(error)))
+		var folder: String = path.path_join(domain+"_animation_"+str(d.parameters.seed)+"_"+str(Time.get_ticks_msec()))
+		await _export_animation_to_folder(domain,folder,false))
+
+func _export_animation_to_folder(domain: String, folder: String, web_download: bool) -> void:
+	var d: Dictionary=pages[domain]
+	var p: Dictionary=d.parameters.duplicate(true)
+	d.animation_exporting=true
+	d.cancel_export=false
+	d.cancel_button.visible=true
+	var exporter:=Pipeline.new()
+	add_child(exporter)
+	var error: Error=await exporter.export_animation(domain,p,folder,func(frame: int,total: int) -> void:
+		d.status.text=tr("动画导出 %d / %d 帧")%[frame,total],func() -> bool: return d.cancel_export)
+	exporter.queue_free()
+	d.animation_exporting=false
+	d.cancel_button.visible=false
+	if web_download:
+		if error==OK: error=browser_files.offer_archive(folder,domain+"_animation_"+str(p.seed)+".zip")
+		else: Archive.cleanup(folder)
+		d.status.text="文件已准备好" if error==OK else (tr("已停止动画导出。") if error==ERR_SKIP else tr("动画导出失败：")+error_string(error))
+	else:
+		d.status.text=tr("动画已导出：")+folder if error==OK else (tr("已停止，部分文件保留在：")+folder if error==ERR_SKIP else tr("动画导出失败：")+error_string(error))
+
+func copy_text(value: String, title: String) -> void:
+	if OS.has_feature("web"): browser_files.show_text(value,title)
+	else: DisplayServer.clipboard_set(value)
+
+func _preset_data(domain: String, palette_only: bool) -> Dictionary:
+	var parameters: Dictionary=pages[domain].parameters.duplicate(true)
+	if palette_only:
+		for key in parameters.keys():
+			if not parameters[key] is String: parameters.erase(key)
+	return {"format":"pixel-cosmos-palette" if palette_only else "pixel-cosmos-preset","version":2,"domain":domain,"parameters":parameters}
 
 func _preset_dialog(domain: String, loading: bool, palette_only: bool) -> void:
+	if OS.has_feature("web"):
+		if loading:
+			browser_files.pick_json(func(result: Dictionary) -> void:
+				if result.has("error"):
+					pages[domain].status.text="无法读取配置，请选择小于 2 MiB 的 JSON 文件。"
+					return
+				var error:=apply_preset_data(domain,JSON.parse_string(str(result.text)),palette_only)
+				pages[domain].status.text="配置已载入，正在更新预览。" if error.is_empty() else error)
+		else:
+			var data:=_preset_data(domain,palette_only)
+			browser_files.offer_download(JSON.stringify(data,"\t").to_utf8_buffer(),domain+("_palette.json" if palette_only else "_preset.json"),"application/json")
+		return
 	_dialog("载入配置" if loading else "保存配置",FileDialog.FILE_MODE_OPEN_FILE if loading else FileDialog.FILE_MODE_SAVE_FILE,func(path: String) -> void:
 		if loading:
 			var error: String = load_preset(domain,path,palette_only)
 			pages[domain].status.text = "配置已载入，正在更新预览。" if error.is_empty() else error
 		else:
-			var parameters: Dictionary = pages[domain].parameters.duplicate(true)
-			if palette_only:
-				for key in parameters.keys():
-					if not parameters[key] is String: parameters.erase(key)
-			var data: Dictionary = {"format":"pixel-cosmos-palette" if palette_only else "pixel-cosmos-preset","version":2,"domain":domain,"parameters":parameters}
-			var error: Error = Pipeline.write_json(path,data)
+			var error: Error = Pipeline.write_json(path,_preset_data(domain,palette_only))
 			pages[domain].status.text = tr("已保存：")+path if error==OK else error_string(error))
 
 func load_preset(domain: String, path: String, palette_only: bool = false) -> String:

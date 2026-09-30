@@ -198,14 +198,15 @@ static func export_assets(result: Dictionary, folder: String) -> Error:
 	if error!=OK: return error
 	error = write_json(folder.path_join("preset.json"),{"format":"pixel-cosmos-preset","version":2,"domain":domain,"parameters":p})
 	if error!=OK: return error
-	for name in ["IMPORT_GUIDE.md","THIRD_PARTY_NOTICES.md"]:
-		error = DirAccess.copy_absolute(ProjectSettings.globalize_path("res://"+("docs/" if name=="IMPORT_GUIDE.md" else "")+name),folder.path_join(name))
+	for name in ["IMPORT_GUIDE.md","THIRD_PARTY_NOTICES.md","LICENSE"]:
+		error = DirAccess.copy_absolute("res://"+("docs/" if name=="IMPORT_GUIDE.md" else "")+name,folder.path_join(name))
 		if error!=OK: return error
 	return OK
 
 func export_animation(domain: String, p: Dictionary, folder: String, progress: Callable = Callable(), cancelled: Callable = Callable()) -> Error:
 	var snapshot: Dictionary = p.duplicate(true)
 	var result: Dictionary = await generate(domain,snapshot)
+	if result.has("error"): return ERR_INVALID_PARAMETER
 	var error: Error = export_assets(result,folder)
 	if domain=="planet": result.node.free()
 	if error!=OK: return error
@@ -219,14 +220,16 @@ func export_animation(domain: String, p: Dictionary, folder: String, progress: C
 	recipe.loop_seam="last frame wraps to frame zero; do not append a duplicate endpoint"
 	error=write_json(folder.path_join("animation.json"),recipe)
 	if error!=OK: return error
-	for filename in ["noise_core.gdshaderinc","assets/stars-special.png"]:
-		error=DirAccess.copy_absolute(ProjectSettings.globalize_path("res://"+filename),folder.path_join(filename.get_file()))
-		if error!=OK: return error
+	error=DirAccess.copy_absolute("res://noise_core.gdshaderinc",folder.path_join("noise_core.gdshaderinc"))
+	if error!=OK: return error
+	# Imported PNG source files need not exist as loose files in an exported PCK.
+	error=preload("res://assets/stars-special.png").get_image().save_png(folder.path_join("stars-special.png"))
+	if error!=OK: return error
 	var context_file := FileAccess.open(folder.path_join("IMPLEMENTATION_CONTEXT.md"),FileAccess.WRITE)
 	if context_file==null: return FileAccess.get_open_error()
 	context_file.store_string(preload("res://noise_motion.gd").context(domain,snapshot))
 	context_file.close()
-	error=DirAccess.copy_absolute(ProjectSettings.globalize_path("res://docs/ANIMATION_GUIDE.md"),folder.path_join("ANIMATION_GUIDE.md"))
+	error=DirAccess.copy_absolute("res://docs/ANIMATION_GUIDE.md",folder.path_join("ANIMATION_GUIDE.md"))
 	if error!=OK: return error
 	configure(domain,snapshot)
 	for frame in snapshot.noise_frames:

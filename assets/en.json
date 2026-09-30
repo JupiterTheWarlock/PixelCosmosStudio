@@ -1,4 +1,5 @@
 {
+ "动态实现说明":"Implementation context", "可点击复制，或按 Ctrl+C / ⌘C 手动复制。":"Click Copy, or press Ctrl+C / Cmd+C to copy the selected text.", "复制":"Copy", "已复制。":"Copied.", "关闭":"Close", "文件已准备好":"File ready", "下载文件":"Download file", "%s（%.1f MiB）\n点击下载；浏览器可能询问保存位置。":"%s (%.1f MiB)\nClick Download; your browser may ask where to save it.", "已停止动画导出。":"Animation export cancelled.", "无法读取配置，请选择小于 2 MiB 的 JSON 文件。":"Cannot read preset. Choose a JSON file smaller than 2 MiB.",
  "左端 %s · 中点（默认）%s · 右端 %s\n滑条非等距，数值框显示实际值；双击滑条回到默认。":"Min %s · Default (center) %s · Max %s\nNonlinear slider; the number box shows the actual value. Double-click to reset.",
  "原作未设置大小的上下限，可输入数值。":"The original defines no size limits; enter a numeric value.",
  "拖动绕星球观察 · 滚轮缩放 · 灯光实时更新":"Drag to orbit · Scroll to zoom · Real-time lighting",

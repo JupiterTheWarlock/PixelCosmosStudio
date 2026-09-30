@@ -6,10 +6,11 @@ const INK=Color("0f2a3f")
 const PAPER=Color("c3a38a")
 const TEXT=Color("f6d6bd")
 const HOVER=Color("4e4960")
+const CJK_FONT=preload("res://assets/ui/NotoSansSC-Regular.otf")
 
 static func apply_locale(theme: Theme) -> void:
-	# Keep Chinese text on Godot's smooth CJK fallback, not the Latin bitmap font.
-	var font: Font=ThemeDB.fallback_font if TranslationServer.get_locale().begins_with("zh") else load("res://assets/ui/slkscre.ttf")
+	# Bundle CJK glyphs so the Web build does not depend on operating-system fonts.
+	var font: Font=CJK_FONT if TranslationServer.get_locale().begins_with("zh") else load("res://assets/ui/slkscre.ttf")
 	theme.default_font=font
 	theme.set_font("title_font","Window",font)
 	for type in ["TabContainer","TabBar"]:
@@ -30,7 +31,7 @@ static func build() -> Theme:
 	var theme:=Theme.new()
 	var pixel_font: FontFile=load("res://assets/ui/slkscre.ttf")
 	pixel_font.antialiasing=TextServer.FONT_ANTIALIASING_NONE
-	pixel_font.fallbacks=[ThemeDB.fallback_font]
+	pixel_font.fallbacks=[CJK_FONT,ThemeDB.fallback_font]
 	theme.default_font=pixel_font
 	theme.default_font_size=16
 	for type in ["Label","Button","CheckBox","CheckButton","OptionButton","LineEdit","TextEdit","PopupMenu","ItemList","TabBar","TabContainer","LinkButton"]:
@@ -66,7 +67,7 @@ static func build() -> Theme:
 		theme.set_color("caret_color",type,TEXT)
 		theme.set_color("selection_color",type,HOVER)
 	# JSON remains a readable conventional font rather than decorative pixel text.
-	theme.set_font("font","TextEdit",ThemeDB.fallback_font)
+	theme.set_font("font","TextEdit",CJK_FONT)
 	theme.set_stylebox("panel","PanelContainer",box(BACKGROUND,HOVER,8))
 	theme.set_stylebox("panel","PopupMenu",box(BACKGROUND,PAPER))
 	theme.set_stylebox("hover","PopupMenu",box(HOVER,TEXT))

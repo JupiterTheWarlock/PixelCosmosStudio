@@ -17,10 +17,10 @@
 
 已验证桌面写入、重复写入、重新打开读取、快照独立性、语言保存、删除、损坏文件保护；已运行与 JavaScriptBridge 完全相同的 JavaScript 存储代码，模拟重新加载、特殊字符、存储禁止及配额错误。设置弹窗、中英文切换和预设应用也已在 Godot 中检查。
 
-尚未发布到 itch，也未完成实际浏览器 WebGL / itch iframe 验证。未来 Web 发布还需要完成并检查：
+2026-09-30 已在实际 Chromium WebGL 页面验证：初次默认英文，切换中文后即时显示；命名预设与语言刷新后保留；JSON 文件选择器导入有效配置、拒绝越界数值；预设 JSON 可在浏览器文本弹窗中检视与复制。静态星球资产和 96 帧动画均实际下载为 ZIP，并检查解压内容与完整性。
 
-1. Godot Web 导出、语言资源及 JSON/说明文件打包。
-2. itch iframe 内保存后刷新和重新打开，存储被禁止时的提示。
-3. Web 下载资产与动画包的流程。现有静态/动画导出仍以桌面文件夹为入口，不能因此宣称 Web 发布已经完成。
+Web 版使用浏览器文件选择器和下载确认弹窗；桌面版继续选择本机目录。动画包生成后点击“下载文件”才开始下载，取消导出会清理本次浏览器临时文件。小型预设库使用 localStorage，导出的 PNG/GLB/ZIP 不会保存在预设库中。
+
+尚未发布到 itch。公开前仍需在 itch 的实际 iframe 中确认加载、刷新后的存档和文件下载；本机同源浏览器验证不覆盖嵌入页面的存储与下载权限。
 
 相关官方文档：[Godot 数据路径](https://docs.godotengine.org/en/4.4/tutorials/io/data_paths.html)、[Web 导出](https://docs.godotengine.org/en/4.4/tutorials/export/exporting_for_web.html)、[JavaScriptBridge](https://docs.godotengine.org/en/4.4/classes/class_javascriptbridge.html)。Godot 自身的 Web `user://` 使用 IndexedDB；本工具的小型预设库选择显式 localStorage 读写，方便即时检查存储错误，二者不是同一存储位置。
