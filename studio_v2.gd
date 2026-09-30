@@ -15,7 +15,7 @@ func _ready() -> void:
 	if not OS.get_cmdline_user_args().is_empty():
 		if "--smoke" in OS.get_cmdline_user_args() or "--ui-smoke" in OS.get_cmdline_user_args() or "--motion-smoke" in OS.get_cmdline_user_args(): preset_store.path="user://test_library.json"
 	preset_store.open()
-	TranslationServer.set_locale(str(preset_store.data.settings.get("locale","zh_CN")))
+	TranslationServer.set_locale(str(preset_store.data.settings.get("locale","en")))
 	tabs = TabContainer.new()
 	tabs.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	tabs.offset_left = 16

@@ -3,7 +3,7 @@ extends RefCounted
 const FILE_PATH = "user://preset_library.json"
 const WEB_SCRIPT = preload("res://assets/browser_storage.gd")
 var path: String = FILE_PATH
-var data: Dictionary = {"format":"pixel-cosmos-library","version":1,"settings":{"locale":"zh_CN"},"presets":[]}
+var data: Dictionary = {"format":"pixel-cosmos-library","version":1,"settings":{"locale":"en"},"presets":[]}
 var error: String = ""
 
 func open() -> void:
